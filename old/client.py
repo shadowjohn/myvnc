@@ -7,8 +7,8 @@ import php
 import base64
 import ctypes
 user32 = ctypes.windll.user32
-screen_width=user32.GetSystemMetrics(0)
-screen_height=user32.GetSystemMetrics(1)
+screen_width=(int)(user32.GetSystemMetrics(0)*80/100)
+screen_height=(int)(user32.GetSystemMetrics(1)*80/100)
 my = php.kit()
 is_first_time = 1 
 w = WIDTH = screen_width
