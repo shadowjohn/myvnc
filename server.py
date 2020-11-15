@@ -10,7 +10,8 @@ import numpy as np
 import numpy
 import sys
 #import pygame
-import win32gui, win32ui, win32con, win32api
+#import win32gui, win32ui, 
+import win32con, win32api
 import cv2
 import time
 import php
@@ -18,9 +19,22 @@ import ctypes
 import hashlib
 import copy
 import base64
-import bson
+#import bson
 import json
 import io
+import paho.mqtt.publish as publish
+mqtt_host = "3wa.tw"
+topic = "myvnc"
+payload = "GG"
+my = php.kit()
+
+# If broker asks user/password.
+auth = my.json_decode(my.file_get_contents("config.ini"))
+
+# If broker asks client ID.
+client_id = ""
+publish.single(topic, payload, qos=1, hostname=mqtt_host,auth=auth)
+                                                
 
 def md5(data):
   m = hashlib.md5()
@@ -37,15 +51,15 @@ def imgEncodeDecode(in_imgs, ch, quality=5):
   decimg = cv2.imdecode(encimg, ch)
 
   return decimg
-my = php.kit()
+
 
 WIDTH = 1024
 HEIGHT = 768
-hwin = win32gui.GetDesktopWindow()
-hwindc = win32gui.GetWindowDC(hwin)
-srcdc = win32ui.CreateDCFromHandle(hwindc)
-memdc = srcdc.CreateCompatibleDC()
-bmp = win32ui.CreateBitmap()
+#hwin = win32gui.GetDesktopWindow()
+#hwindc = win32gui.GetWindowDC(hwin)
+#srcdc = win32ui.CreateDCFromHandle(hwindc)
+#memdc = srcdc.CreateCompatibleDC()
+#bmp = win32ui.CreateBitmap()
 play_one = 0;
 grab_width = ""
 grab_height = ""
@@ -80,8 +94,8 @@ def grab_screen(region=None):
       grab_height = win32api.GetSystemMetrics(win32con.SM_CYVIRTUALSCREEN)
       grab_left = win32api.GetSystemMetrics(win32con.SM_XVIRTUALSCREEN)
       grab_top = win32api.GetSystemMetrics(win32con.SM_YVIRTUALSCREEN)
-      bmp.CreateCompatibleBitmap(srcdc, grab_width, grab_height)
-      memdc.SelectObject(bmp)
+      #bmp.CreateCompatibleBitmap(srcdc, grab_width, grab_height)
+      #memdc.SelectObject(bmp)
       monitor = {"top": grab_top, "left": grab_left, "width": grab_width, "height": grab_height}
       play_one = 1    
           
@@ -89,7 +103,7 @@ def grab_screen(region=None):
     img = numpy.array(img)
     #img = numpy.array(sct_img)
     #return img
-    return cv2.cvtColor(img, cv2.COLOR_BGRA2RGB)
+    return img #cv2.cvtColor(img, cv2.COLOR_BGRA2RGB)
     #return img[:,:,::-1] 
 
 
@@ -117,7 +131,11 @@ def retreive_screenshot(conn):
         global is_first_time
         global is_new
         global encode_param
-        
+        global topic
+        global payload
+        global mqtt_host
+        global auth
+        global publish
         user32 = ctypes.windll.user32
         screen_width=user32.GetSystemMetrics(0)
         screen_height=user32.GetSystemMetrics(1)
@@ -161,6 +179,15 @@ def retreive_screenshot(conn):
             #img = ""
             #try:
             img = grab_screen()
+            img = cv2.resize(img, (800,600))
+            #my.file_put_contents("c:\\temp\\a.png",img.tobytes())
+            # encode
+            retval, buffer = cv2.imencode('.jpg', img)
+            #jpg_as_text = base64.b64encode(buffer)
+            #jpg_as_text = buffer.tostring()
+            publish.single(topic, buffer.tostring() , qos=0, hostname=mqtt_host,auth=auth)
+            time.sleep(0.1)
+            continue;
             #img = cv2.imencode('.jpeg', img,encode_param)[1]
             #nparr = np.fromstring(cut_img, np.uint8)
             #img = cv2.imdecode(img, cv2.IMREAD_COLOR)

@@ -60,14 +60,14 @@ def main(host='localhost', port=5000):
 
     sock = socket.socket()
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-    sock.connect((host, port))
+    sock.connect(('localhost', port))
     
     first_pixel = 0
     pixels = ""
     
-    address = ('0.0.0.0', 5001)
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.bind(address)
+    #address = ('0.0.0.0', 5001)
+    #s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    #s.bind(address)
     
     try:
         while watching:

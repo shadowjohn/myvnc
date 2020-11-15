@@ -1,1 +1,1 @@
-c:\python34\python.exe client.py
+c:\python39\python.exe client.py

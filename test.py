@@ -52,8 +52,8 @@ c = json.loads(c)
 img_str = base64.b64decode(c["a"])
 '''
 
-img_str = str(img_str)
-img_str = bin(img_str) 
+#img_str = str(img_str)
+#img_str = bin(img_str) 
 
 img_np = np.fromstring(img_str, dtype='uint8').reshape( h, w, 3 )
 #img_np = cv2.imdecode(img_np, cv2.IMREAD_COLOR )
